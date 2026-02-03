@@ -1,0 +1,5 @@
+Axiomind is a Modular Monolith architecture designed for AI agent management.
+It uses Qdrant for semantic memory and PostgreSQL for audit logs.
+The core entity is the "Axiom", which represents a verified truth.
+Moltbook is the reputation system.
+This is a test document to verify the ingestion pipeline.

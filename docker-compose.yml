@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: axiomind-api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=${QDRANT_PORT:-6333}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      - postgres
+      - qdrant
+    networks:
+      - axiomind-network
+    volumes:
+      - .:/app
+    command: uvicorn src.adapters.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: axiomind-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-axiomind}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-axiomind}
+      - POSTGRES_DB=${POSTGRES_DB:-axiomind}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - axiomind-network
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: axiomind-qdrant
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - axiomind-network
+    restart: unless-stopped
+
+networks:
+  axiomind-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  qdrant_data:
