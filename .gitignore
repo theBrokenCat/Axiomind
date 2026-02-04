@@ -43,3 +43,5 @@ venv.bak/
 storage/
 logs/
 *.log
+**/node_modules
+frontend_build
